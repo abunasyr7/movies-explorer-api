@@ -9,38 +9,6 @@ const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-const getUsers = (req, res, next) => {
-  User.findById({})
-    .then((users) => {
-      res.status(200).send(users);
-    })
-    .catch(() => {
-      next(new ServerError('Неккоректный запрос к серверу'));
-    });
-};
-
-const getUserId = (req, res, next) => {
-  const { userId } = req.params;
-  User.findById(userId)
-    .orFail(() => {
-      const error = new Error('Пользователь не найден');
-      error.status = 404;
-      throw error;
-    })
-    .then((user) => {
-      res.status(200).send(user);
-    })
-    .catch((error) => {
-      if (error.name === 'CastError') {
-        next(new BadRequestError('Неккоректный запрос'));
-      }
-      if (error.status === 404) {
-        next(new NotFoundError('ID не найден'));
-      }
-      next(new ServerError('Ошибка на сервере'));
-    });
-};
-
 const createUser = (req, res, next) => {
   const {
     name, email, password,
@@ -71,8 +39,8 @@ const createUser = (req, res, next) => {
 
 const userInfo = (req, res, next) => {
   const userId = req.user._id;
-  const { name, about } = req.body;
-  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+  const { name, email } = req.body;
+  User.findByIdAndUpdate(userId, { name, email }, { new: true, runValidators: true })
     .orFail(new NotFoundError('Пользователь с таким id не найден'))
     .then((user) => {
       res.status(200).send(user);
@@ -113,5 +81,5 @@ const getUserFile = (req, res, next) => {
 };
 
 module.exports = {
-  getUsers, getUserId, createUser, userInfo, login, getUserFile,
+  createUser, userInfo, login, getUserFile,
 };
