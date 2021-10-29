@@ -9,3 +9,5 @@ router.patch('/users/me', celebrate({
     email: Joi.string().required().email({ tlds: { allow: false } }),
   }),
 }), userInfo);
+
+module.exports = router;
