@@ -7,8 +7,6 @@ const rateLimit = require('express-rate-limit');
 const { errors, celebrate, Joi } = require('celebrate');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
-const usersRoute = require('./routes/users');
-const moviesRoute = require('./routes/movies');
 const { login, createUser } = require('./controllers/user');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-error');
@@ -55,17 +53,20 @@ app.post('/signup', celebrate({
 }), createUser);
 
 app.use(auth);
-app.use('/', usersRoute);
-app.use('/', moviesRoute);
+
+app.use('/', require('./routes/users'));
+app.use('/', require('./routes/movies'));
+
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Not Found'));
 });
 
 app.use(errorLogger);
-app.use(errors);
+app.use(errors());
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
+  console.dir(err);
   const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
   res.status(statusCode).send({ message });
   next();

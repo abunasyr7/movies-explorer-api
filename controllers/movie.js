@@ -23,7 +23,7 @@ const createMovies = (req, res, next) => {
     year,
     description,
     image,
-    tralier,
+    trailer,
     thumbnail,
     movieId,
     nameEN,
@@ -36,7 +36,7 @@ const createMovies = (req, res, next) => {
     year,
     description,
     image,
-    tralier,
+    trailer,
     thumbnail,
     movieId,
     nameEN,
@@ -56,15 +56,18 @@ const createMovies = (req, res, next) => {
 };
 
 const deleteMovies = (req, res, next) => {
-  Movie.findById(req.params.movieId)
+  Movie.findById(req.user.id)
     .orFail(() => next(new NotFoundError('Фильм с указанным id не найден')))
     .then((movie) => {
-      if (movie.owner.toString() !== req.params.movieId) {
+      if (movie.owner.toString() !== req.user._id) {
         next(new ForbiddenError('Нет прав увдения фильма'));
       } else {
         Movie.findByIdAndRemove(req.params.movieId)
           .then(() => {
             res.status(200).send(movie);
+          })
+          .catch((err) => {
+            console.log(err);
           });
       }
     })

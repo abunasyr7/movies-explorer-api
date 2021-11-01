@@ -18,24 +18,26 @@ router.post('/movies', celebrate({
       }
       return value;
     }),
-    tralier: Joi.string().required().custom((value) => {
+    trailer: Joi.string().required().custom((value) => {
       if (!isURL(value)) {
         throw new Error('Ссылка не корректна');
       }
+      return value;
     }),
     thumbnail: Joi.string().required().custom((value) => {
       if (!isURL(value)) {
         throw new Error('Ссылка не корректна');
       }
+      return value;
     }),
     nameRU: Joi.string().min(2).max(30).required(),
     nameEN: Joi.string().min(2).max(30).required(),
   }),
 }), createMovies);
 
-router.delete('/movies/movieId', celebrate({
+router.delete('/movies/:movieId', celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().hex().length(24),
+    movieId: Joi.number().required(),
   }),
 }), deleteMovies);
 
