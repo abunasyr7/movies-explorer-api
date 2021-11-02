@@ -9,6 +9,22 @@ const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
+const getUserProfileUpdate = (req, res, next) => {
+  const userId = req.user._id;
+  const { name, email } = req.body;
+  User.findByIdAndUpdate(userId, { name, email }, { new: true, runValidators: true })
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные'));
+      } else if (err.name === 'MongoServerError' && err.code === 11000) {
+        next(new ConflictError(`Указанная почта ${email} уже зарегистрирована`));
+      } else {
+        next(new ServerError('Ошибка на сервере'));
+      }
+    });
+};
+
 const createUser = (req, res, next) => {
   const {
     name, email, password,
@@ -81,5 +97,5 @@ const getUserFile = (req, res, next) => {
 };
 
 module.exports = {
-  createUser, userInfo, login, getUserFile,
+  createUser, userInfo, login, getUserFile, getUserProfileUpdate,
 };

@@ -1,5 +1,4 @@
 const BadRequestError = require('../errors/bad-request-error');
-const NotFoundError = require('../errors/not-found-error');
 const ServerError = require('../errors/server-error');
 const ForbiddenError = require('../errors/forbidden-error');
 const Movie = require('../models/movie');
@@ -56,20 +55,16 @@ const createMovies = (req, res, next) => {
 };
 
 const deleteMovies = (req, res, next) => {
-  Movie.findById(req.user.id)
-    .orFail(() => next(new NotFoundError('Фильм с указанным id не найден')))
+  const owner = req.user._id;
+  const { movieId } = req.params;
+  Movie.findById(movieId)
     .then((movie) => {
-      if (movie.owner.toString() !== req.user._id) {
-        next(new ForbiddenError('Нет прав увдения фильма'));
-      } else {
-        Movie.findByIdAndRemove(req.params.movieId)
-          .then(() => {
-            res.status(200).send(movie);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      if (owner.toString() === movie.owner.toString()) {
+        return movie.remove()
+          .then(() => res.status(200)
+            .send({ message: 'Фильм удалён' }));
       }
+      throw new ForbiddenError('Нет прав удаления карточки');
     })
     .catch(next);
 };

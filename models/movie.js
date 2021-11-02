@@ -3,51 +3,54 @@ const validator = require('validator');
 
 const movieSchema = new mongoose.Schema({
   country: {
-    type: 'string',
+    type: String,
     required: true,
   },
   director: {
-    type: 'string',
+    type: String,
     required: true,
   },
   duration: {
-    type: 'number',
+    type: Number,
     required: true,
   },
   year: {
-    type: 'string',
+    type: String,
     required: true,
   },
   description: {
-    type: 'string',
+    type: String,
     required: true,
   },
   image: {
-    type: 'string',
+    type: String,
     required: true,
     validate: {
       validator(value) {
-        return validator.isURL(value);
+        return validator.isURL(value, { require_protocol: true });
       },
+      message: 'Ссылка некорректна',
     },
   },
   trailer: {
-    type: 'string',
+    type: String,
     required: true,
     validate: {
       validator(value) {
-        return validator.isURL(value);
+        return validator.isURL(value, { require_protocol: true });
       },
+      message: 'Ссылка некорректна',
     },
   },
   thumbnail: {
-    type: 'string',
+    type: String,
     required: true,
     validate: {
       validator(value) {
-        return validator.isURL(value);
+        return validator.isURL(value, { require_protocol: true });
       },
     },
+    message: 'Ссылка некорректна',
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -55,15 +58,15 @@ const movieSchema = new mongoose.Schema({
     ref: 'user',
   },
   movieId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Number,
     required: true,
   },
   nameRU: {
-    type: 'string',
+    type: String,
     required: true,
   },
   nameEN: {
-    type: 'string',
+    type: String,
     required: true,
   },
 });
